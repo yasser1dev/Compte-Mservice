@@ -3,7 +3,9 @@ package com.example.mss.web;
 
 import com.example.mss.Service.CompteManagement;
 import com.example.mss.entity.Compte;
+import com.example.mss.entity.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -36,6 +38,12 @@ public class CompteController {
     public void virementCompte(@PathVariable("id1") Long idSender,@PathVariable("montant") double montant,
                                @PathVariable("id2") Long idReciever){
         compteManagement.virementCompte(montant,idSender,idReciever);
+    }
+
+
+    @GetMapping("/compteOperations/{id}")
+    public PagedModel<Operation> getCompteOperation(@PathVariable("id") Long codeCompte){
+        return compteManagement.getCompteOperation(codeCompte);
     }
 
     @GetMapping("/changeCompteState/{id}/{state}")
