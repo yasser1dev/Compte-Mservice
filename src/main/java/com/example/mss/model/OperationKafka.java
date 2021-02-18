@@ -14,7 +14,7 @@ import java.util.Date;
 
 @Data @AllArgsConstructor
 public class OperationKafka {
-    private int numero;
+    private Integer numero;
     private Date dateOperation;
     private double montant;
     private TypeOperation typeOperation;

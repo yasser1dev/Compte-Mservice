@@ -34,50 +34,60 @@ public class CompteManagementImplementation implements CompteManagement {
         compteRepository.save(compte);
     }
 
+    public boolean isActive(Long idCompte){
+        Compte compte=compteRepository.findById(idCompte).get();
+        if(compte.getEtat()==Etat.ACTIVE) return true;
+        return false;
+    }
+
     @Override
     public boolean versementCompte(double montant, Long codeCompte) {
-        Compte compte=compteRepository.findById(codeCompte).get();
-        if(compte.getEtat()==Etat.ACTIVE){
-        compte.setSold(compte.getSold()+montant);
-        Operation operation=new Operation(null,new Date(),montant,TypeOperation.CREDIT,compte);
-        compte.getOperations().add(operation);
-        operationRepository.save(operation);
-        compteRepository.save(compte);
-        return true;}
+        if(isActive(codeCompte)){
+            Compte compte=compteRepository.findById(codeCompte).get();
+            compte.setSold(compte.getSold()+montant);
+            Operation operation=new Operation(null,new Date(),montant,TypeOperation.CREDIT,compte);
+            compte.getOperations().add(operation);
+            operationRepository.save(operation);
+            compteRepository.save(compte);
+            return true;
+        }
         return false;
     }
 
     @Override
     public boolean retraitCompte(double montant, Long codeCompte) {
-        Compte compte=compteRepository.findById(codeCompte).get();
-        if(compte.getEtat()==Etat.ACTIVE){double sold=compte.getSold();
-        if(sold<montant) return false;
-        compte.setSold(compte.getSold()-montant);
-        Operation operation=new Operation(null,new Date(),montant,TypeOperation.DEBIT,compte);
-        compte.getOperations().add(operation);
-        operationRepository.save(operation);
-        compteRepository.save(compte);
-        return true;
+        if(isActive(codeCompte)){
+            Compte compte=compteRepository.findById(codeCompte).get();
+            double sold=compte.getSold();
+            if(sold<montant) return false;
+            compte.setSold(compte.getSold()-montant);
+            Operation operation=new Operation(null,new Date(),montant,TypeOperation.DEBIT,compte);
+            compte.getOperations().add(operation);
+            operationRepository.save(operation);
+            compteRepository.save(compte);
+            return true;
         }
         return false;
     }
 
     @Override
     public boolean virementCompte(double montant, Long codeCompte1, Long codeCompte2) {
-        Compte senderCompte=compteRepository.findById(codeCompte1).get();
-        Compte recieverCompte=compteRepository.findById(codeCompte2).get();
+        if(isActive(codeCompte1)){
+            Compte senderCompte=compteRepository.findById(codeCompte1).get();
+            Compte recieverCompte=compteRepository.findById(codeCompte2).get();
+            double soldSender=senderCompte.getSold();
+            if(soldSender<montant) return false;
+            senderCompte.setSold(senderCompte.getSold()-montant);
+            recieverCompte.setSold(recieverCompte.getSold()+montant);
+            Operation operation=new Operation(null,new Date(),montant,TypeOperation.DEBIT,senderCompte);
+            senderCompte.getOperations().add(operation);
 
-        double soldSender=senderCompte.getSold();
-        if(soldSender<montant) return false;
-        senderCompte.setSold(senderCompte.getSold()-montant);
-        recieverCompte.setSold(recieverCompte.getSold()+montant);
-        Operation operation=new Operation(null,new Date(),montant,TypeOperation.DEBIT,senderCompte);
-        senderCompte.getOperations().add(operation);
-
-        operationRepository.save(operation);
-        compteRepository.save(senderCompte);
-        compteRepository.save(recieverCompte);
-        return true;
+            operationRepository.save(operation);
+            compteRepository.save(senderCompte);
+            compteRepository.save(recieverCompte);
+            return true;
+        }
+        return false;
 
     }
 

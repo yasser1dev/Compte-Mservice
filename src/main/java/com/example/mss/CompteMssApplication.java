@@ -59,7 +59,7 @@ public class CompteMssApplication {
                     ,1+Math.random()*1000,
                     TypeOperation.values()[(int)(Math.random()*2)],(int)(Math.random()*6));
             System.out.println(operation);
-            kafkaTemplate.send(topic,"key : "+operation.getNumero(),operation);
+            kafkaTemplate.send(topic,String.valueOf(operation.getNumero()),operation);
             System.out.println("-------------------------------------------");
         },1000,1000, TimeUnit.MILLISECONDS);
 
